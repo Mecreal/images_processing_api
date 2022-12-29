@@ -8,7 +8,7 @@ const app: Express = express();
 const port = process.env.PORT || 3300;
 app.use(morgan('dev'));
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: Function) => {
   if (req.url === '/favicon.ico') {
     res.sendStatus(204);
   } else {

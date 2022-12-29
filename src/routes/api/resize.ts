@@ -1,15 +1,15 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, IRouter } from 'express';
 import path from 'path';
 import { sharp_use } from '../../utilities/sharp_use';
-import { check_image } from '../../utilities/cach';
 import {
   images_in_dir,
   image_dir_link,
   img_dir_ext,
   thumb_dir_f
 } from '../../utilities/image_folders';
+import * as fs from 'fs';
 
-const resize = express.Router();
+const resize: IRouter = express.Router();
 
 // Definition of the resize router
 resize.get(
@@ -73,15 +73,17 @@ resize.get(
           'Error, the height or width are invalide please enter a valide values'
         );
     }
+    const nameWNExt: string = path.parse(nameWExt).name;
+    const nameExt: string = path.parse(nameWExt).ext;
 
-    const locthumb: string = process.cwd() + `/thumb/${nameWExt}`;
-    const check_ext_img: boolean = await check_image(locthumb, width, height);
-    // if it exists we show it without starting the resizing
-    if (check_ext_img) {
+    const locthumb: string =
+      process.cwd() + `/thumb/${nameWNExt}-${width}-${height}${nameExt}`;
+
+    if (fs.existsSync(locthumb)) {
       console.log('The Image is already exist');
       return res.sendFile(locthumb);
     }
-    // if the image doesn't exist we resize it
+    // if the thmb doesn't exist we resize it
     const sharped: string = await sharp_use(width, height, locImg, locthumb);
     if (sharped !== 'error') {
       return res.status(200).sendFile(sharped);

@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -15,8 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const sharp_use_1 = require("../../utilities/sharp_use");
-const cach_1 = require("../../utilities/cach");
 const image_folders_1 = require("../../utilities/image_folders");
+const fs = __importStar(require("fs"));
 const resize = express_1.default.Router();
 // Definition of the resize router
 resize.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -60,18 +83,21 @@ resize.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     else if (!(req.query.height !== undefined && req.query.width !== undefined)) {
         return res.status(400).send('Error,Please enter both width and height');
     }
-    // storing the dimensions
-    const height = parseInt(req.query.height);
-    const width = parseInt(req.query.width);
-    // storing the path of the thumb image and cheinkg if the image exist
-    const locthumb = process.cwd() + `/thumb/${nameWExt}`;
-    const check_ext_img = yield (0, cach_1.check_image)(locthumb, width, height);
-    // if it exists we show it without starting the resizing
-    if (check_ext_img) {
+    const height = Number(req.query.height);
+    const width = Number(req.query.width);
+    if (isNaN(height) || isNaN(width)) {
+        return res
+            .status(400)
+            .send('Error, the height or width are invalide please enter a valide values');
+    }
+    const nameWNExt = path_1.default.parse(nameWExt).name;
+    const nameExt = path_1.default.parse(nameWExt).ext;
+    const locthumb = process.cwd() + `/thumb/${nameWNExt}-${width}-${height}${nameExt}`;
+    if (fs.existsSync(locthumb)) {
         console.log('The Image is already exist');
         return res.sendFile(locthumb);
     }
-    // if the image doesn't exist we resize it
+    // if the thmb doesn't exist we resize it
     const sharped = yield (0, sharp_use_1.sharp_use)(width, height, locImg, locthumb);
     if (sharped !== 'error') {
         return res.status(200).sendFile(sharped);
