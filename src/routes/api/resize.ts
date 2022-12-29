@@ -31,7 +31,7 @@ resize.get(
         );
     }
 
-    const name = req.query.name as string; // storing the name of the image
+    const name: string = req.query.name as string; // storing the name of the image
 
     // cheking if the image exist in the folder image
     if (
@@ -63,20 +63,26 @@ resize.get(
     ) {
       return res.status(400).send('Error,Please enter both width and height');
     }
+    const height: number = Number(req.query.height);
+    const width: number = Number(req.query.width);
 
-    // storing the dimensions
-    const height: number = parseInt(req.query.height as string);
-    const width: number = parseInt(req.query.width as string);
-    // storing the path of the thumb image and cheinkg if the image exist
+    if (isNaN(height) || isNaN(width)) {
+      return res
+        .status(400)
+        .send(
+          'Error, the height or width are invalide please enter a valide values'
+        );
+    }
+
     const locthumb: string = process.cwd() + `/thumb/${nameWExt}`;
-    const check_ext_img = await check_image(locthumb, width, height);
+    const check_ext_img: boolean = await check_image(locthumb, width, height);
     // if it exists we show it without starting the resizing
     if (check_ext_img) {
       console.log('The Image is already exist');
       return res.sendFile(locthumb);
     }
     // if the image doesn't exist we resize it
-    const sharped = await sharp_use(width, height, locImg, locthumb);
+    const sharped: string = await sharp_use(width, height, locImg, locthumb);
     if (sharped !== 'error') {
       return res.status(200).sendFile(sharped);
     } else {

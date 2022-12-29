@@ -1,7 +1,7 @@
 {
-  "name": "filesystem",
-  "version": "1.0.0",
-  "description": "THis is a code for file system",
+  "name": "image_processing_with_api_via_sharp",
+  "version": "1.0.1",
+  "description": "This is a code for Image resizing API via sharp",
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
